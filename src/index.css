@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.cus-height {
+    height: calc(100vh - 56px);
+}
+
+/* Add this in your global CSS file, e.g., src/index.css */
+
+::-webkit-scrollbar {
+    width: 6px;
+    /* Width of the scrollbar */
+}
+
+
+::-webkit-scrollbar-thumb {
+    background-color: #299FF4;
+    /* Scrollbar thumb color */
+    border-radius: 10px;
+    /* Round the thumb */
+    /* border: 2px solid #2b2b2b; */
+    /* Adds padding around thumb */
+}
