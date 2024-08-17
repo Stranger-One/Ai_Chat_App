@@ -16,6 +16,7 @@ const Header = () => {
     // console.log(userStatus);
     // console.log(userData);
     const [dataOpen, setDataOpen] = useState(false)
+    
 
     const handleMenu = () => {
         if (menuOpen) {

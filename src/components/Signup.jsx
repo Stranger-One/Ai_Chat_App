@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Button from './Button'
 import Input from './Input'
 import { useForm } from 'react-hook-form'
@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { loginContext } from '../store/authSlice'
 import authService from '../appwrite/authService'
+import { FiLoader } from "react-icons/fi";
 
 
 
@@ -13,10 +14,12 @@ const Signup = () => {
     const { register, handleSubmit } = useForm()
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
 
     const create = async (data) => {
         console.log(data);
         // setError("")
+        setLoading(true)
 
         try {
             const user = await authService.createAccount(data)
@@ -27,8 +30,10 @@ const Signup = () => {
                 if (userData) dispatch(loginContext(userData));
                 navigate("/")
             }
+            setLoading(false)
         } catch (error) {
             // setError(error.message)
+            setLoading(false)
         }
     }
 
@@ -64,7 +69,9 @@ const Signup = () => {
                         required: true,
                     })}
                 />
-                <Button type="submit" className="w-full">Create Account</Button>
+                <Button type="submit" className="w-full">{loading ? (
+                    <FiLoader className="animate-spin text-white text-2xl mx-auto" />
+                ) : "Create Account"}</Button>
             </form>
         </div>
     )

@@ -9,9 +9,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import storageService from '../appwrite/storageService.js';
 import { useLocation } from 'react-router-dom';
+import { setHistoryList } from '../store/dataSlice.js';
 
 
-const Chat = ({isNew}) => {
+const Chat = ({ isNew }) => {
     const inputRef = useRef()
     const chatBox = useRef()
     const navigate = useNavigate()
@@ -45,20 +46,21 @@ const Chat = ({isNew}) => {
         setLoading(false)
     };
 
-    const createDocument = async (request) => {
-        let stringifiedMessage = JSON.stringify([request])
+    const createDocument = async (request, response) => {
+        let stringifiedMessage = JSON.stringify([request, response])
 
         const createdDoc = await storageService.createDocument(userData.email, stringifiedMessage)
-        if(createdDoc){
+        if (createdDoc) {
             console.log("document created", createdDoc);
+            dispatch(setHistoryList(createdDoc.$id))
             navigate(createdDoc.$id)
         }
     };
 
     const updateDocument = async (request, response) => {
-        let stringifiedMessage = JSON.stringify([...messages, request, ...(response ? [response] : []) ])
+        let stringifiedMessage = JSON.stringify([...messages, request, ...(response ? [response] : [])])
         // console.log(userData);
-        await storageService.updateDocument(userData.email, stringifiedMessage, documentId).then((resp)=>{
+        await storageService.updateDocument(userData.email, stringifiedMessage, documentId).then((resp) => {
             console.log("document updated", resp);
         })
     };
@@ -68,15 +70,15 @@ const Chat = ({isNew}) => {
         console.log(location.pathname.slice(1));
         let id = location.pathname.slice(1)
         setMessages([])
-        setChats([]) 
+        setChats([])
 
-        if(id){
+        if (id) {
             console.log("existing chat");
             getChats(id)
         } else {
             console.log("new chat");
-            setMessages([])
-            setChats([])
+            // setMessages([])
+            // setChats([])
         }
     }, [location])
 
@@ -91,25 +93,45 @@ const Chat = ({isNew}) => {
             setChats((curChats) => [...curChats, <Request req={request} />])
             inputRef.current.value = ''
 
-            createDocument(request)
-        } 
+            const response = await getResponse(request)
+            // console.log(response);
+            if (response) {
+                setMessages(message => [...message, response])
+                setChats((curChats) => [...curChats, <Response resp={response} />])
+                // update document
+                // updateDocument(request, response)
+
+                createDocument(request, response)
+            }
+
+        }
         else {
             // update document
             setMessages(message => [...message, request])
             setChats((curChats) => [...curChats, <Request req={request} />])
             inputRef.current.value = ''
 
-            updateDocument(request)
+            const response = await getResponse(request)
+            // console.log(response);
+            if (response) {
+                setMessages(message => [...message, response])
+                setChats((curChats) => [...curChats, <Response resp={response} />])
+                // update document
+                // updateDocument(request, response)
+
+                updateDocument(request, response)
+            }
+
         }
 
-        const response = await getResponse(request)
-        // console.log(response);
-        if (response) {
-            setMessages(message => [...message, response])
-            setChats((curChats) => [...curChats, <Response resp={response} />])
-            // update document
-            updateDocument(request, response)
-        }
+        // const response = await getResponse(request)
+        // // console.log(response);
+        // if (response) {
+        //     setMessages(message => [...message, response])
+        //     setChats((curChats) => [...curChats, <Response resp={response} />])
+        //     // update document
+        //     // updateDocument(request, response)
+        // }
 
         setLoading(false)
     };

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import Input from './Input'
 import Button from './Button'
 import authService from '../appwrite/authService'
+import { FiLoader } from "react-icons/fi";
 import { loginContext } from '../store/authSlice'
 
 
@@ -12,9 +13,11 @@ const Login = () => {
     const { register, handleSubmit } = useForm()
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
 
     const login = async (data) => {
         console.log(data);
+        setLoading(true)
         try {
             const session = await authService.login(data)
             if (session) {
@@ -25,8 +28,10 @@ const Login = () => {
                     navigate('/')
                 }
             }
+            setLoading(false)
         } catch (error) {
             // setError(error.message)
+            setLoading(false)
         }
     };
 
@@ -54,7 +59,9 @@ const Login = () => {
                         required: true,
                     })}
                 />
-                <Button type="submit" className="w-full">Login</Button>
+                <Button type="submit" className="w-full">{loading ? (
+            <FiLoader className="animate-spin text-white text-2xl mx-auto" />
+        ) : "Login"}</Button>
             </form>
         </div>
     )

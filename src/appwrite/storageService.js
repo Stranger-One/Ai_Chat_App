@@ -1,4 +1,4 @@
-import { Client, Databases, ID, Storage } from "appwrite";
+import { Client, Databases, ID, Query, Storage } from "appwrite";
 import { conf } from "../conf/conf";
 
 export class StorageService {
@@ -84,11 +84,14 @@ export class StorageService {
         }
     }
 
-    async listDocument(){
+    async listDocument(email){
         try {
             return await this.database.listDocuments(
                 conf.databaseId,
-                conf.collectionId
+                conf.collectionId,
+                [
+                    Query.equal('email', email)
+                ]
             )
         } catch (error) {
             console.log("Appwrite :: listDocuments :: error", error);
