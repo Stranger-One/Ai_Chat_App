@@ -1,15 +1,32 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Header from './components/Header'
-import History from './components/History'
-import Chat from './components/Chat'
+import { Outlet } from 'react-router-dom'
+import authService from './appwrite/authService'
+import { useDispatch } from 'react-redux'
+import { loginContext } from './store/authSlice'
 
 const App = () => {
+  const dispatch = useDispatch()
+
+  useEffect( ()=>{
+    const initiate = async () => {
+      let curUser = await authService.getCurUser()
+      // console.log(curUser)
+      if(curUser){
+        dispatch(loginContext(curUser))
+      }
+      // console.log('App Mounted')
+    };
+    initiate()
+
+
+  }, [])
+  
   return (
-    <section className='w-full h-screen bg-zinc-900 grid grid-rows-[56px_auto] duration-200 '>
+    <section className='w-full h-screen bg-zinc-900 grid grid-rows-[10vh_90vh] duration-200 '>
       <Header />
-      <main className='w-full grid grid-cols-[250px_auto] '>
-        <History />
-        <Chat />
+      <main className='w-full relative flex'>
+        <Outlet />
       </main>
     </section>
   )

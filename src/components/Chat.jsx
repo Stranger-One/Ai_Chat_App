@@ -1,74 +1,117 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { IoIosSend } from "react-icons/io";
-import {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-} from "@google/generative-ai"
-import { conf } from '../conf/conf.js'
+
 import Request from './Request.jsx';
 import Response from './Response.jsx';
 import { FiLoader } from "react-icons/fi";
+import getResponse from '../gemini/GetResponse.js';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import storageService from '../appwrite/storageService.js';
+import { useLocation } from 'react-router-dom';
 
 
-
-const Chat = () => {
+const Chat = ({isNew}) => {
     const inputRef = useRef()
     const chatBox = useRef()
-    const [chats, setChats] = useState([])
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const userStatus = useSelector(state => state.auth.userStatus)
+    const userData = useSelector(state => state.auth.userData)
+    const navigateTo = useSelector(state => state.data.documentId)
     const [loading, setLoading] = useState(false)
+    const [messages, setMessages] = useState([])
+    const [chats, setChats] = useState([])
+    const [fetched, setFetched] = useState(false);
+    const { documentId } = useParams()
+    const location = useLocation();
 
-    const handleRequest = async () => {
+
+    const getChats = async (docId) => {
+        setLoading(true)
+        let getDocument = await storageService.getDocument(docId)
+
+        let fetchedChats = JSON.parse(getDocument.chats)
+        // console.log(fetchedChats);
+        setMessages(fetchedChats)
+
+        for (let i = 0; i < fetchedChats.length; i++) {
+            if (i % 2 === 0) {
+                setChats((curChats) => [...curChats, <Request req={fetchedChats[i]} />])
+            } else {
+                setChats((curChats) => [...curChats, <Response resp={fetchedChats[i]} />])
+            }
+        }
+        setLoading(false)
+    };
+
+    const createDocument = async (request) => {
+        let stringifiedMessage = JSON.stringify([request])
+
+        const createdDoc = await storageService.createDocument(userData.email, stringifiedMessage)
+        if(createdDoc){
+            console.log("document created", createdDoc);
+            navigate(createdDoc.$id)
+        }
+    };
+
+    const updateDocument = async (request, response) => {
+        let stringifiedMessage = JSON.stringify([...messages, request, ...(response ? [response] : []) ])
+        // console.log(userData);
+        await storageService.updateDocument(userData.email, stringifiedMessage, documentId).then((resp)=>{
+            console.log("document updated", resp);
+        })
+    };
+
+    // console.log(navigateTo);
+    useEffect(() => {
+        console.log(location.pathname.slice(1));
+        let id = location.pathname.slice(1)
+        setMessages([])
+        setChats([]) 
+
+        if(id){
+            console.log("existing chat");
+            getChats(id)
+        } else {
+            console.log("new chat");
+            setMessages([])
+            setChats([])
+        }
+    }, [location])
+
+    const handleRequest = async (e) => {
+        e.preventDefault()
+        setLoading(true)
         const request = inputRef.current.value
-        try {
-            /*
-            * Install the Generative AI SDK
-            *
-            * $ npm install @google/generative-ai
-            */
 
-            // console.log(request);
-            // addRequest(request)
-            setLoading(true)
-
+        if (chats.length == 0) {
+            // create Document
+            setMessages(message => [...message, request])
             setChats((curChats) => [...curChats, <Request req={request} />])
             inputRef.current.value = ''
 
-            const apiKey = conf.geminiApiKey;
-            const genAI = new GoogleGenerativeAI(apiKey);
+            createDocument(request)
+        } 
+        else {
+            // update document
+            setMessages(message => [...message, request])
+            setChats((curChats) => [...curChats, <Request req={request} />])
+            inputRef.current.value = ''
 
-            const model = genAI.getGenerativeModel({
-                model: "gemini-1.5-flash",
-            });
-
-            const generationConfig = {
-                temperature: 1,
-                topP: 0.95,
-                topK: 64,
-                maxOutputTokens: 8192,
-                responseMimeType: "text/plain",
-            };
-
-            const chatSession = model.startChat({
-                generationConfig,
-                // safetySettings: Adjust safety settings
-                // See https://ai.google.dev/gemini-api/docs/safety-settings
-                history: [
-                ],
-            });
-
-            const result = await chatSession.sendMessage(request);
-            const response = result.response.text()
-            // console.log(response);
-            if (response) {
-                setChats((curChats) => [...curChats, <Response resp={response} />])
-            }
-
-            setLoading(false)
-        } catch (error) {
-            console.error("Something went wrong", error);
+            updateDocument(request)
         }
 
+        const response = await getResponse(request)
+        // console.log(response);
+        if (response) {
+            setMessages(message => [...message, response])
+            setChats((curChats) => [...curChats, <Response resp={response} />])
+            // update document
+            updateDocument(request, response)
+        }
+
+        setLoading(false)
     };
 
     useEffect(() => {
@@ -76,7 +119,6 @@ const Chat = () => {
             chatBox.current.scrollTop = chatBox.current.scrollHeight;
         }
     }, [chats])
-
 
     return (
         <section className='w-full h-full relative'>
@@ -90,22 +132,21 @@ const Chat = () => {
                     <div className='w-full h-full flex flex-col items-center justify-center'>
                         <h1 className='text-white/80 text-3xl'>I am ready to answer you...</h1>
                         <h1 className='text-white/50 text-xl'>Ask whatever you want </h1>
-                    </div>}
+                        {!userStatus && <Link to="/login" className='text-blue-600 text-xl' >Login to chat</Link>}
+                    </div>
+                }
 
             </div>
-            <div className="w-[80%] grid grid-cols-[auto_140px] rounded-lg overflow-hidden border p-2 absolute bottom-3 left-1/2 -translate-x-1/2 ">
-                <input ref={inputRef} type="text" placeholder='Ask me anything ...' className='px-6 outline-none border-none bg-transparent text-white/80 ' />
-                <button onClick={handleRequest} disabled={loading} className='py-[6px] px-8 bg-[#299FF4] rounded-lg text-lg flex flex-nowrap items-center justify-center gap-2 '>
+            <form onSubmit={(e) => handleRequest(e)} className="w-[80%] grid grid-cols-[auto_40px] rounded-lg overflow-hidden border p-2 absolute bottom-3 left-1/2 -translate-x-1/2 ">
+                <input disabled={!userStatus} ref={inputRef} type="text" placeholder='Ask me anything ...' className=' outline-none border-none bg-transparent text-white/80 ' />
+                <button type='submit' disabled={loading || !userStatus} className=' rounded-lg text-lg flex items-center justify-center '>
                     {loading ? (
-                        <FiLoader className="animate-spin" />
+                        <FiLoader className="animate-spin text-white text-2xl" />
                     ) : (
-                        <>
-                            Send <IoIosSend className="ml-2" />
-                        </>
+                        <><IoIosSend className="ml-2 text-white text-2xl" /></>
                     )}
-
                 </button>
-            </div>
+            </form>
         </section>
     )
 }
