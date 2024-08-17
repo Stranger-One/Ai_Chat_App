@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { IoIosSend } from "react-icons/io";
-
 import Request from './Request.jsx';
 import Response from './Response.jsx';
 import { FiLoader } from "react-icons/fi";
-import getResponse from '../gemini/GetResponse.js';
+import getResponse from '../gemini/getResponse.js';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import storageService from '../appwrite/storageService.js';
@@ -12,18 +11,16 @@ import { useLocation } from 'react-router-dom';
 import { setHistoryList } from '../store/dataSlice.js';
 
 
-const Chat = ({ isNew }) => {
+const Chat = () => {
     const inputRef = useRef()
     const chatBox = useRef()
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const userStatus = useSelector(state => state.auth.userStatus)
     const userData = useSelector(state => state.auth.userData)
-    const navigateTo = useSelector(state => state.data.documentId)
     const [loading, setLoading] = useState(false)
     const [messages, setMessages] = useState([])
     const [chats, setChats] = useState([])
-    const [fetched, setFetched] = useState(false);
     const { documentId } = useParams()
     const location = useLocation();
 
@@ -77,8 +74,6 @@ const Chat = ({ isNew }) => {
             getChats(id)
         } else {
             console.log("new chat");
-            // setMessages([])
-            // setChats([])
         }
     }, [location])
 
@@ -98,12 +93,9 @@ const Chat = ({ isNew }) => {
             if (response) {
                 setMessages(message => [...message, response])
                 setChats((curChats) => [...curChats, <Response resp={response} />])
-                // update document
-                // updateDocument(request, response)
 
                 createDocument(request, response)
             }
-
         }
         else {
             // update document
@@ -116,23 +108,10 @@ const Chat = ({ isNew }) => {
             if (response) {
                 setMessages(message => [...message, response])
                 setChats((curChats) => [...curChats, <Response resp={response} />])
-                // update document
-                // updateDocument(request, response)
 
                 updateDocument(request, response)
             }
-
         }
-
-        // const response = await getResponse(request)
-        // // console.log(response);
-        // if (response) {
-        //     setMessages(message => [...message, response])
-        //     setChats((curChats) => [...curChats, <Response resp={response} />])
-        //     // update document
-        //     // updateDocument(request, response)
-        // }
-
         setLoading(false)
     };
 
