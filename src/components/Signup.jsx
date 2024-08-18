@@ -17,16 +17,16 @@ const Signup = () => {
     const [loading, setLoading] = useState(false)
 
     const create = async (data) => {
-        console.log(data);
+        // console.log(data);
         // setError("")
         setLoading(true)
 
         try {
             const user = await authService.createAccount(data)
-            console.log("user", user);
+            // console.log("user", user);
             if (user) {
                 const userData = await authService.getCurUser()
-                console.log("user data", userData);
+                // console.log("user data", userData);
                 if (userData) dispatch(loginContext(userData));
                 navigate("/")
             }

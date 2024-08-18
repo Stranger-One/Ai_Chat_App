@@ -10,7 +10,7 @@ const authSlice = createSlice({
         loginContext: (state, action) => {
             state.userStatus = true;
             state.userData = action.payload;
-            console.log("loginContext userdata updated");
+            // console.log("loginContext userdata updated");
         },
         LogoutContext: (state, action) => {
             state.userStatus = false;

@@ -11,6 +11,7 @@ const getResponse = async (request) => {
 
     const model = genAI.getGenerativeModel({
         model: "gemini-1.5-flash",
+        // generationConfig: { responseMimeType: "application/json" }
     });
 
     const generationConfig = {
@@ -32,33 +33,41 @@ const getResponse = async (request) => {
     const result = await chatSession.sendMessage(request);
     const response = result.response.text()
 
-    let newResp3;
-    const check = response.includes("**")
+    function convertToHTML(text) {
+        let header = null;
 
-    if (check) {
-        let respArray = response.split('**')
-        // console.log(respArray);
-        let newResp = "";
-
-        for (let i = 0; i < respArray.length; i++) {
-            if (i === 0 || i % 2 !== 1) {
-                if (i !== 0) {
-                    newResp += respArray[i];
-                }
-            } else {
-                newResp += "<b>" + respArray[i] + "</b> <br/>";
-            }
+        // Extract the first line and set it as the header
+        const lines = text.split('\n');
+        if (lines.length > 0 && lines[0].includes("##")) {
+            header = lines[0].replace(/^##\s*/, ''); // Remove '## ' from the first line
+            lines[0] = ''; // Clear the first line after extracting the header
         }
 
-        let newResp2 = newResp.split("*").join("<br/>")
-        newResp3 = newResp2.split("undefined<br/>").join(" ")
+        // Convert the remaining lines into HTML
+        let body = lines.join('\n');
 
-    } else {
-        newResp3 = response;
+        // Remove asterisks and add a new line after them
+        body = body.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        body = body.replace(/\*/g, '');
 
+        // Replace paragraph breaks (double new lines) with <p> tags
+        body = body.replace(/\n\n/g, '</p><br/><p>');
+        body = body.replace(/\n/g, '<br/>'); // Replace single new lines with <br>
+        // Wrap the content with <p> tags and add the header
+
+        // console.log(text);
+        // console.log(body);
+        return {
+            header: header,
+            content: body,
+        };
     }
 
-    return newResp3
+    const { header, content } = convertToHTML(response);
+    // console.log(header);
+    // console.log(content);
+
+    return { header, content }
 };
 
 export default getResponse;

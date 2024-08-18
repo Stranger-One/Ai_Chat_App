@@ -43,12 +43,12 @@ const Chat = () => {
         setLoading(false)
     };
 
-    const createDocument = async (request, response) => {
+    const createDocument = async (request, response, title) => {
         let stringifiedMessage = JSON.stringify([request, response])
 
-        const createdDoc = await storageService.createDocument(userData.email, stringifiedMessage)
+        const createdDoc = await storageService.createDocument(userData.email, stringifiedMessage, title)
         if (createdDoc) {
-            console.log("document created", createdDoc);
+            // console.log("document created", createdDoc);
             dispatch(setHistoryList(createdDoc.$id))
             navigate(createdDoc.$id)
         }
@@ -64,7 +64,7 @@ const Chat = () => {
 
     // console.log(navigateTo);
     useEffect(() => {
-        console.log(location.pathname.slice(1));
+        // console.log(location.pathname.slice(1));
         let id = location.pathname.slice(1)
         setMessages([])
         setChats([])
@@ -88,13 +88,14 @@ const Chat = () => {
             setChats((curChats) => [...curChats, <Request req={request} />])
             inputRef.current.value = ''
 
-            const response = await getResponse(request)
-            // console.log(response);
-            if (response) {
-                setMessages(message => [...message, response])
-                setChats((curChats) => [...curChats, <Response resp={response} />])
+            const { header, content } = await getResponse(request)
+            // console.log(header, content);
+            let title = header || request
+            if (content) {
+                setMessages(message => [...message, content])
+                setChats((curChats) => [...curChats, <Response resp={content} />])
 
-                createDocument(request, response)
+                createDocument(request, content, title)
             }
         }
         else {
@@ -103,13 +104,14 @@ const Chat = () => {
             setChats((curChats) => [...curChats, <Request req={request} />])
             inputRef.current.value = ''
 
-            const response = await getResponse(request)
-            // console.log(response);
-            if (response) {
-                setMessages(message => [...message, response])
-                setChats((curChats) => [...curChats, <Response resp={response} />])
+             const { header, content } = await getResponse(request)
+            // console.log(header);
+            // console.log(content);
+            if (content) {
+                setMessages(message => [...message, content])
+                setChats((curChats) => [...curChats, <Response resp={content} />])
 
-                updateDocument(request, response)
+                updateDocument(request, content)
             }
         }
         setLoading(false)

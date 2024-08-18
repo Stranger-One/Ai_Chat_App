@@ -22,3 +22,8 @@
     /* border: 2px solid #2b2b2b; */
     /* Adds padding around thumb */
 }
+
+strong
+{
+    font-weight: 700;
+}

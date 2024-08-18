@@ -16,7 +16,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false)
 
     const login = async (data) => {
-        console.log(data);
+        // console.log(data);
         setLoading(true)
         try {
             const session = await authService.login(data)

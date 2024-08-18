@@ -29,7 +29,7 @@ export class StorageService {
     //         return false
     //     }
     // }
-    async createDocument(email, chats) {
+    async createDocument(email, chats, title) {
         try {
             const result = await this.database.createDocument(
                 conf.databaseId,
@@ -37,7 +37,8 @@ export class StorageService {
                 ID.unique(),
                 {
                     email,
-                    chats
+                    chats,
+                    title
                 }
             )
             if (result) {
