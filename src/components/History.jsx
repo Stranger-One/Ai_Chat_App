@@ -30,14 +30,14 @@ const History = () => {
             historyManage()
         }
 
-    }, [historyList])
+    }, [historyList, menuOpen])
 
     const handleNavigate = (id) => {
         dispatch(closeMenu())
         navigate(id)
     };
 
-    console.log(historyLists);
+    // console.log(historyLists); 
     return (
         <section className={`p-2 border-r-[1px] absolute  top-0 ${menuOpen ? 'left-[0] lg:w-[250px]' : '-left-[100%] lg:w-[0px]'} w-[80%]  h-full bg-zinc-900 z-10 duration-200 lg:relative`}>
             <div className="w-full h-12 bg-zinc-800 rounded-md flex justify-between items-center px-2">
