@@ -15,7 +15,7 @@
 
 
 ::-webkit-scrollbar-thumb {
-    background-color: #299FF4;
+    background-color: #9A9A9A;
     /* Scrollbar thumb color */
     border-radius: 10px;
     /* Round the thumb */
@@ -25,5 +25,5 @@
 
 strong
 {
-    font-weight: 700;
+    font-weight: 600;
 }

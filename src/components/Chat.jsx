@@ -9,9 +9,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import storageService from '../appwrite/storageService.js';
 import { useLocation } from 'react-router-dom';
 import { setHistoryList } from '../store/dataSlice.js';
+import { SiGooglegemini } from "react-icons/si";
 
 
-const Chat = () => {
+const Chat = ({setPageLoading}) => {
     const inputRef = useRef()
     const chatBox = useRef()
     const navigate = useNavigate()
@@ -27,6 +28,7 @@ const Chat = () => {
 
     const getChats = async (docId) => {
         setLoading(true)
+        setPageLoading(true)
         let getDocument = await storageService.getDocument(docId)
 
         let fetchedChats = JSON.parse(getDocument.chats)
@@ -41,6 +43,7 @@ const Chat = () => {
             }
         }
         setLoading(false)
+        setPageLoading(false)
     };
 
     const createDocument = async (request, response, title) => {
@@ -104,7 +107,7 @@ const Chat = () => {
             setChats((curChats) => [...curChats, <Request req={request} />])
             inputRef.current.value = ''
 
-             const { header, content } = await getResponse(request)
+            const { header, content } = await getResponse(request)
             // console.log(header);
             // console.log(content);
             if (content) {
@@ -124,7 +127,7 @@ const Chat = () => {
     }, [chats])
 
     return (
-        <section className='w-full h-full relative'>
+        <section className='w-full h-full relative bg-zinc-950'>
             <div className="relative w-full h-full pb-2 ">
                 {chats.length > 0 ?
                     <div ref={chatBox} className='w-full h-[80vh] flex flex-col custom-scrollbar overflow-auto relative px-4 pt-4'>
@@ -133,6 +136,9 @@ const Chat = () => {
                         ))}
                     </div> :
                     <div className='w-full h-full flex flex-col items-center justify-center'>
+                        <div className="rounded-full border-[1px] h-10 w-10 flex items-center justify-center">
+                            <SiGooglegemini className='text-white text-3xl' />
+                        </div>
                         <h1 className='text-white/80 text-3xl'>I am ready to answer you...</h1>
                         <h1 className='text-white/50 text-xl'>Ask whatever you want </h1>
                         {!userStatus && <Link to="/login" className='text-blue-600 text-xl' >Login to chat</Link>}
@@ -141,7 +147,7 @@ const Chat = () => {
 
             </div>
             <form onSubmit={(e) => handleRequest(e)} className="w-[80%] grid grid-cols-[auto_40px] rounded-lg overflow-hidden border p-2 absolute bottom-3 left-1/2 -translate-x-1/2 ">
-                <input disabled={!userStatus} ref={inputRef} type="text" placeholder='Ask me anything ...' className=' outline-none border-none bg-transparent text-white/80 ' />
+                <input disabled={!userStatus} ref={inputRef} type="text" placeholder='Ask me anything...' className=' outline-none border-none bg-transparent text-white/80 ' />
                 <button type='submit' disabled={loading || !userStatus} className=' rounded-lg text-lg flex items-center justify-center '>
                     {loading ? (
                         <FiLoader className="animate-spin text-white text-2xl" />
@@ -150,6 +156,7 @@ const Chat = () => {
                     )}
                 </button>
             </form>
+            
         </section>
     )
 }

@@ -27,12 +27,12 @@ const Header = () => {
     };
 
     return (
-        <header className='w-full bg-transparent border-b-[1px] z-10 relative flex'>
+        <header className='w-full bg-transparent  z-10 relative flex'>
             <nav className='w-full h-full px-5 flex items-center justify-between '>
                 <IoMdMenu onClick={handleMenu} className='text-white text-3xl cursor-pointer' />
-                <div className='border border-white/70 px-10 py-1 rounded-lg'>
+                {/* <div className='border border-white/70 px-10 py-1 rounded-lg'>
                     <h2 className='text-white/80 text-lg'>Ai_Chat_App</h2>
-                </div>
+                </div> */}
                 {userStatus ?
                     <div className="w-12 rounded-full relative">
                         <img onClick={() => setDataOpen(toggle => !toggle)} src="/User-Profile.png" alt="" className='h-full w-full cursor-pointer' />
