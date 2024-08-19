@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { FiEdit } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
 import storageService from '../appwrite/storageService';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { closeMenu } from '../store/menuSlice';
-import { setHistoryList } from '../store/dataSlice';
 import { FiLoader } from "react-icons/fi";
-import { RiArrowDownSFill } from "react-icons/ri";
 import { RiArrowLeftSFill } from "react-icons/ri";
 import { SiGooglegemini } from "react-icons/si";
 
