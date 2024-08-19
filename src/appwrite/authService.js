@@ -22,11 +22,13 @@ export class AuthService{
             )
             // login and redirect to "/"
             if(userAccount){
-                console.log("account created");
-                return this.login({email, password})
+                // console.log("account created");
+                // return this.login({email, password})
+                return {status: true}
             }
         } catch (error) {
             console.log("Appwrite :: create account :: error", error)
+            return {status: false, message: error};
         }
     }
 
@@ -34,9 +36,11 @@ export class AuthService{
         try {
             const response = await this.account.createEmailPasswordSession(email, password)
             response && console.log("Login successfully");
-            return response
+            return {status: true, message: response};
         } catch (error) {
             console.log("Appwrite :: login :: error", error)
+            return {status: false, message: error};
+
         }
     }
 

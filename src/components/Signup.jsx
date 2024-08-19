@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { loginContext } from '../store/authSlice'
 import authService from '../appwrite/authService'
 import { FiLoader } from "react-icons/fi";
+import toast from 'react-hot-toast'
 
 
 
@@ -22,13 +23,18 @@ const Signup = () => {
         setLoading(true)
 
         try {
-            const user = await authService.createAccount(data)
-            // console.log("user", user);
-            if (user) {
+            const {status, message} = await authService.createAccount(data)
+            // console.log(status);
+            // console.log(String(message).split(": ").pop());
+            let respMessage = String(message).split(": ").pop()
+            if (status) {
                 const userData = await authService.getCurUser()
                 // console.log("user data", userData);
                 if (userData) dispatch(loginContext(userData));
+                toast.success('Account Created Successfully')
                 navigate("/")
+            } else {
+                toast.error(respMessage)
             }
             setLoading(false)
         } catch (error) {

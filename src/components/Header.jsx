@@ -13,7 +13,7 @@ const Header = () => {
     const menuOpen = useSelector((state) => state.menu.open)
     const userStatus = useSelector((state) => state.auth.userStatus)
     const userData = useSelector((state) => state.auth.userData)
-    // console.log(userStatus);
+    console.log(userStatus);
     // console.log(userData);
     const [dataOpen, setDataOpen] = useState(false)
     

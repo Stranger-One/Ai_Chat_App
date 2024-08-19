@@ -4,6 +4,7 @@ import authService from '../appwrite/authService';
 import { LogoutContext } from '../store/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { FiLoader } from "react-icons/fi";
+import toast from 'react-hot-toast';
 
 
 const LogoutButton = ({setDataOpen}) => {
@@ -17,6 +18,7 @@ const LogoutButton = ({setDataOpen}) => {
         authService.logout().then(()=>{
             dispatch(LogoutContext());
             setDataOpen(false)
+            toast.success("Logout Successfully")
             setLoading(false)
             navigate("/login")
         })

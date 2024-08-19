@@ -7,6 +7,7 @@ import Button from './Button'
 import authService from '../appwrite/authService'
 import { FiLoader } from "react-icons/fi";
 import { loginContext } from '../store/authSlice'
+import toast from 'react-hot-toast';
 
 
 const Login = () => {
@@ -19,14 +20,20 @@ const Login = () => {
         // console.log(data);
         setLoading(true)
         try {
-            const session = await authService.login(data)
-            if (session) {
+            const {status, message} = await authService.login(data)
+            // console.log(status);
+            // console.log(String(message).split(": ")[1]);
+            let respMessage = String(message).split(": ")[1]
+            if (status) {
                 const userData = await authService.getCurUser()
                 // console.log(userData)
                 if (userData) {
                     dispatch(loginContext(userData))
                     navigate('/')
                 }
+                toast.success("Login Successfully")
+            } else {
+                toast.error(respMessage)
             }
             setLoading(false)
         } catch (error) {
@@ -37,6 +44,7 @@ const Login = () => {
 
     return (
         <div className='w-full h-full flex items-center justify-center'>
+           
             <form onSubmit={handleSubmit(login)} className='w-[300px] h-[450px] flex flex-col items-center justify-between text-white '>
                 <div className='w-16 h-16 rounded-full'>
                     <img src="/User-Profile.png" alt="" />
