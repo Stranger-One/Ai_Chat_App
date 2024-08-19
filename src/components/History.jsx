@@ -63,7 +63,7 @@ const History = ({setPageLoading}) => {
                 </div>
 
                 <FiEdit onClick={() => handleNavigate("/")} className='text-white text-xl cursor-pointer' />
-                <div className='absolute  left-[100%] px-8 py-1 text-zinc-900 bg-zinc-100 whitespace-nowrap rounded-sm group-hover:visible invisible duration-200'>
+                <div className='absolute hidden lg:block left-[100%] px-8 py-1 text-zinc-900 bg-zinc-100 whitespace-nowrap rounded-sm group-hover:visible invisible duration-200'>
                     <RiArrowLeftSFill className='absolute -left-[16px] top-1/2 -translate-y-1/2 text-3xl text-zinc-100' />
                     New Chat
                 </div>
