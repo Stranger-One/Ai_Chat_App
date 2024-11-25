@@ -61,7 +61,7 @@ const Chat = ({setPageLoading}) => {
         let stringifiedMessage = JSON.stringify([...messages, request, ...(response ? [response] : [])])
         // console.log(userData);
         await storageService.updateDocument(userData.email, stringifiedMessage, documentId).then((resp) => {
-            console.log("document updated", resp);
+            // console.log("document updated", resp);
         })
     };
 
